@@ -1,0 +1,38 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-grafana
+  namespace: kubernetes-monitoring
+  annotations:
+    nginx.ingress.kubernetes.io/auth-response-headers: "x-injected-userinfo,x-injected-name,x-injected-oid,x-injected-preferred-username,x-injected-sub,x-injected-tid,x-injected-email,x-injected-groups,x-injected-scp,x-injected-roles,x-injected-graph"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    #cert-manager.io/issuer: letsencrypt-prod
+    cert-manager.io/acme-challenge-type: http01
+    #nginx.ingress.kubernetes.io/use-regex: "true"
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/frontend-entry-points: http,https
+spec:
+  tls:
+  - hosts:
+    - grafana.nivelepsilon.com
+    secretName: grafana-nivelepsilon-com
+  rules:
+    - host: grafana.nivelepsilon.com
+      http:
+        paths:
+          - path: /
+            pathType: "Prefix"
+            backend:
+              service:
+                name: monitoring-grafana
+                port:
+                  number: 443
+          - path: /
+            pathType: "Prefix"
+            backend:
+              service:
+                name: monitoring-grafana
+                port:
+                  number: 80
+
